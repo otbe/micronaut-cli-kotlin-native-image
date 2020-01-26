@@ -1,0 +1,5 @@
+profile: cli
+defaultPackage: org.example.cli
+---
+testFramework: kotlintest
+sourceLanguage: kotlin
