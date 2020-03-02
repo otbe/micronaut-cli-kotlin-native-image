@@ -3,10 +3,10 @@ package org.example.cli
 import io.micronaut.configuration.picocli.PicocliRunner
 import io.micronaut.core.annotation.Introspected
 import picocli.CommandLine
+import javax.inject.Singleton
 
 
 @CommandLine.Command(name = "my-cli-app", description = ["..."], mixinStandardHelpOptions = true)
-@Introspected
 class Application : Runnable {
     @CommandLine.Option(names = ["-v", "--verbose"], description = ["..."])
     var verbose = false

@@ -18,12 +18,14 @@ repositories {
 
 configurations {
     // for dependencies that are needed for development only
-    developmentOnly 
+    developmentOnly
+    generateConfig
 }
 
 dependencies {
     annotationProcessor "io.micronaut:micronaut-graal"
     annotationProcessor "io.micronaut.configuration:micronaut-picocli"
+    annotationProcessor 'info.picocli:picocli-codegen:4.2.0'
     compileOnly "org.graalvm.nativeimage:svm"
     implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
     implementation "io.micronaut:micronaut-runtime"
@@ -43,6 +45,7 @@ dependencies {
     testImplementation "io.micronaut.test:micronaut-test-kotlintest"
     testImplementation "io.mockk:mockk:1.9.3"
     testImplementation "io.kotlintest:kotlintest-runner-junit5:3.3.2"
+    generateConfig 'info.picocli:picocli-codegen:4.2.0'
 }
 
 test.classpath += configurations.developmentOnly
@@ -57,6 +60,14 @@ jar {
 shadowJar {
     mergeServiceFiles()
 }
+
+task(generateGraalReflectionConfig, dependsOn: 'classes', type: JavaExec) {
+    main = 'picocli.codegen.aot.graalvm.ReflectionConfigGenerator'
+    classpath = configurations.generateConfig + sourceSets.main.runtimeClasspath
+    def outputFile = "${buildDir}/resources/main/META-INF/native-image/${project.group}/${project.name}/reflect-config.json"
+    args = ["--output=$outputFile", 'org.example.cli.Application']
+}
+assemble.dependsOn generateGraalReflectionConfig
 
 run.classpath += configurations.developmentOnly
 run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
